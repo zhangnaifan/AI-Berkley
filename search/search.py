@@ -1,3 +1,4 @@
+# coding=UTF-8
 # search.py
 # ---------
 # Licensing Information:  You are free to use or extend these projects for
@@ -72,7 +73,6 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -87,71 +87,58 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    
-    fringe = util.Stack()
-    fringe.push((problem.getStartState(), []))
+    "*** YOUR CODE HERE ***"
+    fringe = util.Stack()  # DFS优先搜索最新加入的节点
     closed = set()
-    goal = False
+    fringe.push((problem.getStartState(), []))
+    while not fringe.isEmpty():
+        state, path = fringe.pop()  # state：当前搜索位置；path：目前为止的搜索路径
+        if problem.isGoalState(state):
+            return path
+        if state not in closed:  # 避免重复扩展节点
+            closed.add(state)
+            for child in problem.getSuccessors(state):
+                if child[0] not in closed:  # 避免重复添加已扩展节点（如父节点）
+                    fringe.push((child[0], path + [child[1]]))
+    return None
 
-    while not goal:
-        if fringe.isEmpty():
-            return False
-        node = fringe.pop()
-        closed.add(node[0])
-        if problem.isGoalState(node[0]):
-                    return node[1]
-        for i in problem.getSuccessors(node[0]):
-            if i[0] not in closed:
-                temp = list(node[1])
-                temp.append(i[1])
-                fringe.push((i[0], temp))
 
-    util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    
-    fringe = util.Queue()
-    fringe.push((problem.getStartState(), []))
+    "*** YOUR CODE HERE ***"
+    fringe = util.Queue()  # BFS优先搜索最早加入的节点
     closed = set()
-
+    fringe.push((problem.getStartState(), []))
     while not fringe.isEmpty():
-        node, actions = fringe.pop()
-        if problem.isGoalState(node):
-            return actions 
-        for i in problem.getSuccessors(node):
-            if i[0] not in closed:
-                fringe.push((i[0], actions + [i[1]]))
-                closed.add(i[0])
-
-        closed.add(node)
-                
-    return []
-
+        state, path = fringe.pop()  # state：当前搜索位置；path：目前为止的搜索路径
+        if problem.isGoalState(state):
+            return path
+        if state not in closed:  # 避免重复扩展节点
+            closed.add(state)
+            for child in problem.getSuccessors(state):
+                if child[0] not in closed:  # 避免重复添加已扩展节点（如父节点）
+                    fringe.push((child[0], path + [child[1]]))
+    return None
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    fringe = util.PriorityQueue()
+    "*** YOUR CODE HERE ***"
+    fringe = util.PriorityQueue()  # UCS优先搜索当前代价最小的节点
+    closed = set()
     fringe.push((problem.getStartState(), [], 0), 0)
-    closed = dict()
-    goal = False
-
-    while not goal:
-        if fringe.isEmpty():
-            return False
-        node = fringe.pop()
-        closed[node[0]] = node[2]
-        if problem.isGoalState(node[0]):
-            return node[1]
-        for i in problem.getSuccessors(node[0]):
-            if i[0] not in closed or (i[0] in closed and closed[i[0]] > node[2]+i[2]) :
-                temp = list(node[1])
-                temp.append(i[1])
-                cost = node[2] + i[2]
-                closed[i[0]] = cost
-                fringe.push((i[0], temp, cost), cost)
-
-    util.raiseNotDefined()
+    while not fringe.isEmpty():
+        # state：当前搜索位置；path：目前为止的搜索路径；cost：目前为止的代价和
+        state, path, cost = fringe.pop()
+        if problem.isGoalState(state):
+            return path
+        if state not in closed:  # 避免重复扩展节点
+            closed.add(state)
+            for child in problem.getSuccessors(state):
+                if child[0] not in closed:  # 避免重复添加已扩展节点（如父节点）
+                    fringe.push((child[0], path + [child[1]], cost + child[2]),
+                                cost + child[2])
+    return None
 
 def nullHeuristic(state, problem=None):
     """
@@ -162,27 +149,22 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    fringe = util.PriorityQueue()
+    "*** YOUR CODE HERE ***"
+    fringe = util.PriorityQueue()  # A*优先搜索当前（代价+期望）最小的节点
+    closed = set()
     fringe.push((problem.getStartState(), [], 0), 0)
-    closed = dict()
-    goal = False
-
-    while not goal:
-        if fringe.isEmpty():
-            return False
-        node = fringe.pop()
-        closed[node[0]] = node[2]
-        if problem.isGoalState(node[0]):
-            return node[1]
-        for i in problem.getSuccessors(node[0]):
-            if i[0] not in closed or (i[0] in closed and closed[i[0]] > node[2]+i[2]+heuristic(i[0], problem)) :
-                temp = list(node[1])
-                temp.append(i[1])
-                cost = node[2] + i[2]
-                closed[i[0]] = cost
-                fringe.push((i[0], temp, cost), cost + heuristic(i[0], problem))
-
-    util.raiseNotDefined()
+    while not fringe.isEmpty():
+        # state：当前搜索位置；path：目前为止的搜索路径；cost：目前为止的代价和
+        state, path, cost = fringe.pop()
+        if problem.isGoalState(state):
+            return path
+        if state not in closed:  # 避免重复扩展节点
+            closed.add(state)
+            for child in problem.getSuccessors(state):
+                if child[0] not in closed:  # 避免重复添加已扩展节点（如父节点）
+                    fringe.push((child[0], path + [child[1]], cost + child[2]),
+                                cost + child[2] + heuristic(child[0], problem))
+    return None
 
 # Abbreviations
 bfs = breadthFirstSearch
